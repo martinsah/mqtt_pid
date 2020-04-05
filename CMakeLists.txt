@@ -13,3 +13,6 @@ ADD_EXECUTABLE( mqtt_pid_pwm mqtt_pid_pwm.cpp )
 
 TARGET_LINK_LIBRARIES( mqtt_sub_example PahoMqttCpp::paho-mqttpp3 )
 TARGET_LINK_LIBRARIES( mqtt_pid_pwm  Boost::program_options PahoMqttCpp::paho-mqttpp3 )
+
+install(TARGETS mqtt_pid_pwm DESTINATION bin)
+

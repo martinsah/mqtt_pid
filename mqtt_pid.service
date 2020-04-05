@@ -1,0 +1,16 @@
+[Unit]
+Description=MQTT PID service
+Requires=mosquitto.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5
+User=root
+Environment="LD_LIBRARY_PATH=/usr/local/lib"
+ExecStart=/usr/local/bin/mqtt_pid_pwm
+
+[Install]
+WantedBy=multi-user.target
+
