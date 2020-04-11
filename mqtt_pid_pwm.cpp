@@ -75,12 +75,13 @@ int main(int ac, char **av)
         ("topic_kd", po::value<std::string>()->default_value("pid/kd"), "mqtt subscribe topic for online kd updates")
         
         ("td",  po::value<int>()->default_value(500), "time between iterations (integer milliseconds)")
-        ("kp",   po::value<double>()->default_value(1.0) , "kp")
-        ("ki",   po::value<double>()->default_value(.001), "ki")
+        ("kp",   po::value<double>()->default_value(0.01) , "kp")
+        ("ki",   po::value<double>()->default_value(-.0001), "ki")
         ("kd",   po::value<double>()->default_value(0.1) , "kd")
-        ("intcap",   po::value<double>()->default_value(10) , "integral term cap (+-)")
+        ("intcap",   po::value<double>()->default_value(0.1) , "integral term cap (+-)")
 
         ("verbose", "report to stdout")
+        ("mqtt_log", "send debug log to mqtt")
         ("csv", "csv readout to stdout")
 
     ;
@@ -98,6 +99,12 @@ int main(int ac, char **av)
     if (vm.count("verbose")){
         std::cout << "verbose set\n";
         verbose = true;
+    }
+    
+    bool mqtt_log=false;
+    if (vm.count("mqtt_log")){
+        std::cout << "mqtt_log set\n";
+        mqtt_log = true;
     }
     
     bool csv=false;
@@ -177,6 +184,11 @@ int main(int ac, char **av)
     shared_ptr<mqtt::topic> pwm;
     pwm = make_shared<mqtt::topic>(cli, pwmtopic, QOS, true);
     
+    // mqtt_log
+    shared_ptr<mqtt::topic> mqtt_log_sender;
+    mqtt_log_sender = make_shared<mqtt::topic>(cli, "log/pwm", QOS, true);
+    
+    
     // mqtt consume topics
     cli.start_consuming();
     std::cout << "Subscribing to topic[s]\n";
@@ -244,7 +256,9 @@ int main(int ac, char **av)
         }
         outval = pid(input_val);
         pwm->publish(std::to_string(outval));
-
+        mqtt_log_sender->publish(std::string("pid.pterm ") + std::to_string(pid.pterm));
+        mqtt_log_sender->publish(std::string("pid.iterm ") + std::to_string(pid.iterm));
+        mqtt_log_sender->publish(std::string("pid.dterm ") + std::to_string(pid.dterm));
         //
         this_thread::sleep_for(chrono::milliseconds(td));
     }

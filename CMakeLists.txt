@@ -16,3 +16,4 @@ TARGET_LINK_LIBRARIES( mqtt_pid_pwm  Boost::program_options PahoMqttCpp::paho-mq
 
 install(TARGETS mqtt_pid_pwm DESTINATION bin)
 
+install(FILES mqtt_pid.service DESTINATION /etc/systemd/system/ OPTIONAL)
